@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="./gschat.css">
+<title>Chatアプリ</title>
+</head>
+<body>
+
+<!-- コンテンツ表示画面 -->
+<header>
+    <h1 id="color"><center>チャットルーム</center></h1>
+    
+</header>
+<audio src="./cat.mp3" id="cat2"></audio>
+<audio src="./tori.mp3" id="tori2"></audio>
+<audio src="./dog.mp3" id="dog2"></audio>
+<div>
+    <ul class="yoko">
+        <li class="imgs" id="cat" data-img="0"><img src="imgs/buke.png" width="100" alt="">
+        </li>
+        <li class="imgs" id="tori"data-img="1"><img src="imgs/tuku.jpg" width="100" alt=""></li>
+        <li class="imgs" id="dog" data-img="2"><img src="imgs/caram.png" width="100" alt=""></li>
+    </ul>
+</div>
+<div class="form">
+    <!-- 名前入力欄 -->
+    <div>名前：<input type="text" id="username"></div>
+    <div>
+        <!-- メッセージ入力欄 -->
+        <textarea id="text" cols="30" rows="10"></textarea>
+        <!-- 送信ボタン -->
+        
+    </div>
+    <div><button id="send" class="button">送信</button></div>
+    <!-- チャット文字を表示-->
+    <div id="output" style="height:250px; overflow:auto; border:1px solid gray;"></div>
+</div>
+
+<!--/ コンテンツ表示画面 -->
+
+
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!-- JQuery -->
+
+
+<!--** 以下Firebase **-->
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
+<script>
+$("#color").css("color",("white"));//タイトル白色
+$("p").css("color",("white"));//タイトル白色
+$("body").css('background-image','url()');//背景画像
+$("header").css('background-image','url(green.jpg)');//ヘッダー画像
+
+//画像クリックで音楽再生
+$("#dog").on("click",function(){
+    $("#dog2").get(0).play();
+
+});
+$("#dog").on("dblclick",function(){
+    $("#dog2").get(0).pause();
+});
+
+$("#cat").on("click",function(){
+    $("#cat2").get(0).play();
+});
+$("#cat").on("dblclick",function(){
+    $("#cat2").get(0).pause();
+});
+
+$("#tori").on("click",function(){
+    $("#tori2").get(0).play();
+});
+$("#tori").on("dblclick",function(){
+    $("#tori2").get(0).pause();
+});
+
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyCOj8qGx2J2LS4JmlB1Lv8V9Hpz3gQWVi0",
+    authDomain: "gs-chat2.firebaseapp.com",
+    databaseURL: "https://gs-chat2.firebaseio.com",
+    projectId: "gs-chat2",
+    storageBucket: "gs-chat2.appspot.com",
+    messagingSenderId: "408677079459",
+    appId: "1:408677079459:web:f4b8e3a5ef1498d9192216"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const ref = firebase.database().ref();    //.ref()はユニークキーを自動で割り当ててください、という意味。
+                                            //ユニークキーはfirebaseのデータベースに表示される無作為の番号文字列
+
+//アイコン処理
+let d = 0;
+const img = ["buke.png","tuku.jpg","caram.png"];
+$(".imgs").on("click",function(){
+    d = $(this).attr("data-img");
+});
+
+//関数定義
+function send(){
+    const username = $("#username").val();  //.val();でデータを取ってくる
+    const text = $("#text").val();
+    var now = new Date();                     
+	var year = now.getFullYear();
+	var mon = now.getMonth()+1; //１を足すこと
+	var day = now.getDate();
+	var hour = now.getHours();
+	var min = now.getMinutes();
+	var sec = now.getSeconds();
+	var times = year + "年" + mon + "月" + day + "日" + hour + "時" + min + "分" + sec + "秒"; 
+    const message = {         //オブジェクト変数に取得した各データをまとめて格納する
+        username: username,   //プロバティ名（キー）とバリューの関係
+        text: text,
+        times:times,                 //時間
+        icon:d
+    }
+    ref.push(message,);
+}
+
+  //文字送信
+  $("#send").on("click", function(){
+    send();   //上記で定義したref変数にmassageを引数として持たせ追加していくイメージ
+                            // setは決まった名前、pushはユニークキーを割り当てる
+    const lastElement = document.querySelector("#output").lastElementChild//最後の要素を取得
+    lastElement.scrollIntoView({behavior: "smooth"})//最後の要素が見えるまでスクロール
+  });
+
+  //受信処理
+  ref.on("child_added", function(data){ //child_addedは１個ずつデータ取得できる機能でfirebaseが準備しているもの
+                                        //送信されたらdataの引数で値を受け取る
+    const v = data.val(); //送信されたdataオブジェクト変数の値をv変数に入れる
+    const k = data.key;   //ユニークキーを取得してk変数に入れる
+    const n = data.val();
+    const h = '<p><img src="imgs/'+img[v.icon]+'" width="50"><br>'+v.username+'<br>'+n.times+'<br>'+v.text+'</p>';  // .を使いオブジェクト変数取得ができる
+    $("#output").append(h);  //20行目のoutput枠にhの値を追加していく
+  });
+
+//イベント情報取得
+$("#text").on("keydown",function(e){
+    //console.log(e);
+    if(e.keyCode == 13){
+        send();
+    }
+});
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
