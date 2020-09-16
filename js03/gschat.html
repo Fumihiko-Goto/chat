@@ -84,15 +84,7 @@ $("#tori").on("dblclick",function(){
 });
 
   // Your web app's Firebase configuration
-  var firebaseConfig = {
-    apiKey: "AIzaSyCOj8qGx2J2LS4JmlB1Lv8V9Hpz3gQWVi0",
-    authDomain: "gs-chat2.firebaseapp.com",
-    databaseURL: "https://gs-chat2.firebaseio.com",
-    projectId: "gs-chat2",
-    storageBucket: "gs-chat2.appspot.com",
-    messagingSenderId: "408677079459",
-    appId: "1:408677079459:web:f4b8e3a5ef1498d9192216"
-  };
+  
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const ref = firebase.database().ref();    //.ref()はユニークキーを自動で割り当ててください、という意味。
